@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'car_management',
     'user',
     
-    'django.contrib.sites',
+    # 'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 ]
 # django.contrib.sites
-SITE_ID = 1
+# SITE_ID = 1
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"  # Use Email / Password authentication
 ACCOUNT_USERNAME_REQUIRED = False

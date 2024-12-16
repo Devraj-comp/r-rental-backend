@@ -1,0 +1,21 @@
+{
+    "make": "Mazda",
+    "model": "CX-5",
+    "year": 2022,
+    "price_per_day": 70.00,
+    "available": True,
+    "description": "A compact SUV with a stylish design and sporty performance.",
+    "image": "path/to/mazda_cx5.jpg", 
+    "mileage": 10000,
+    "fuel_type": "Petrol",
+    "transmission_type": "Automatic",
+    "seat_count": 5,
+    "door_count": 4,
+    "luggage_capacity": 4,
+    "color": "Red",
+    "location": "Austin",
+    "current_status": "Available",
+    "last_serviced_date": date(2024, 4, 30),
+    "insurance_included": True,
+    "extras": {"GPS": false, "Child Seat": true}
+}

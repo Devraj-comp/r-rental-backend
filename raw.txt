@@ -1,0 +1,169 @@
+import React, {useState, useEffect, useRef} from "react";
+import { MdCancel } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+
+import GOOGLE_ICON from '../assets/google.jpg';
+
+const colors = {
+    primary: '#060606',
+    background: '#E0E0E0',
+    disabled: '#D9D9D9'
+}
+
+export const LoginPop = ({onClose, toggleSignUp}) => {
+    const [showLogin, setShowLogin] = useState(true);
+    const [showSignUp, setShowSignUp] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
+    const loginRef = useRef();
+    const navigate = useNavigate();
+
+    const closeLogin = (e) => {
+        if (loginRef.current === e.target){
+            onClose();
+        }
+    }
+    const handleSignUpClick = () => {
+        setShowLogin(false);
+        setShowSignUp(true);
+    }
+    const handleLoginClick = () => {
+        setShowSignUp(false);
+        setShowLogin(true);
+    }
+    // handlelogin
+    const handleLogin = async(e) => {
+        e.preventDefault();
+        const data = {username, password};
+        try {
+            const response = await fetch('http://127.0.0.1:8000/user/api/token/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            console.log('response: ', response);
+            if (response.ok) {
+                const result = await response.json();
+                console.log(result);
+                const { access, refresh } = result;
+        
+                // Store the tokens in local storage
+                localStorage.setItem('access_token', access);
+                localStorage.setItem('refresh_token', refresh);
+
+                const accessToken = localStorage.getItem('access_token')
+
+                const bearer_token = `Bearer ${accessToken}`;
+
+                console.log('bearer token: ', bearer_token);
+        
+                // Now fetch the authenticated user's details
+                const userResponse = await fetch('http://localhost:8000/user/current/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `JWT ${access}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('userResponse: ', userResponse);
+                // If the response is ok, process the user info
+                if (userResponse.ok) {
+                    const userInfo = await userResponse.json();
+                    localStorage.setItem('user', userInfo.username);
+                    localStorage.setItem('role', userInfo.role);
+                    localStorage.setItem('id', userInfo.id);
+                    // Check the user's role
+                    if (userInfo.role === 'admin') {
+                        // For admin users, redirect to the admin dashboard
+                        window.location.href = 'http://127.0.0.1:3000/';
+                        console.log("role: admin");
+                    } else {
+                        // For renters, redirect to the user dashboard
+                        window.location.href = 'http://127.0.0.1:3000/';
+                        console.log("role: renter");
+                    }
+                } else {
+                    // Handle cases where fetching user info failed (e.g., wrong token)
+                    console.log("Failed to fetch user info.");
+                }
+            } else {
+                const errorData = await response.json();
+                setError(errorData.detail);  // Handle error message from backend
+            }
+        } catch (error) {
+            console.log('Login error: ', error);
+        }
+        
+    };
+    return(
+        <div className="fixed inset-0 bg-black text-white bg-opacity-40 backdrop-blur-sm z-50 flex justify-center items-center">
+            <div className="w-1/2 h-3/2 flex items-start">
+            <button onClick={onClose} className="absolute top-4 right-4 text-2xl"><MdCancel/></button>
+                    <div className="w-1/2 h-full bg-[#f5f5f5] flex flex-col p-20 justify-between items-center">
+                        <h1 className="text-xl text-[#060606] font-semibold">RIGHT-RENTAL</h1>
+                        <div className="w-full flex flex-col max-w-[500px]">
+                            <div className="w-full flex flex-col mb-2">
+                                <h3 className="text-3xl font-semibold mb-2 text-black">Login</h3>
+                                <p className="text-base mb-2 text-black">Welcome Back! Please enter your details.</p>
+                            </div> 
+                            <form onSubmit={handleLogin}>
+                                <div className="w-full flex flex-col">
+                                    <input 
+                                        type = "text"
+                                        placeholder = "username"
+                                        className="w-full text-black py-4 my-4 bg-transparent border-b border-black outline-none focus:outline-none"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                    />
+                                    {/* <input type = "email" placeholder = "Email" className="w-full text-black py-4 my-4 bg-transparent border-b border-black outline-none focus:outline-none" /> */}
+                                    <input
+                                        type = "password"
+                                        placeholder = "Password"
+                                        className="w-full text-black py-4 my-4 bg-transparent border-b border-black outline-none focus:outline-none"
+                                        value = {password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                                <div className="w-full flex items-center justify-between">
+                                    <div className="w-full flex items-center">
+                                        <input type="checkbox" className="w-4 h-4 mr-2" />
+                                        <p className="text-sm text-black">Remember Me</p>
+                                    </div>
+                                    <p className="text-sm font-medium whitespace-nowrap cursor-pointer underline underline-offset-2 text-black">Forgot Password</p>
+                                </div>
+                                <div className="w-full flex flex-col">
+                                    <button
+                                        className="w-full text-white my-2 bg-[#060606] rounded-md p-4 text-center font-semibold flex items-center justify-center cursor-pointer"
+                                        type="submit"
+                                    >
+                                        Log In
+                                    </button>
+                                    <button
+                                        className="w-full text-black my-2 bg-white border border-black rounded-md p-4 text-center font-semibold flex items-center justify-center cursor-pointer"
+                                    >
+                                        Register
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div className="w-full flex items-center justify-center relative py-2">
+                                <div className="w-full h-[1px] bg-black/40"></div>
+                                <p className="text-lg absolute text-black/80 bg-[#f5f5f5]">or</p>
+                            </div>
+                            <button className="w-full text-black my-2 bg-white border border-black/40 rounded-md p-4 text-center font-semibold flex items-center justify-center cursor-pointer">
+                                <img src={GOOGLE_ICON} className="h-6 mr-2" /> Sign In with Google
+                                </button>
+                        </div>
+                        <div className="w-full flex items-center justify-center">
+                            <p className="text-sm font-normal text-[#060606]">Don't have an account? <span onClick={
+                             toggleSignUp   
+                            } className="font-semibold underline underline-offset-2 cursor-pointer">Sign up for free</span></p>
+                        </div>
+                </div>
+        </div>
+        </div>
+    )
+}

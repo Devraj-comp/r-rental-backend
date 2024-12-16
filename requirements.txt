@@ -23,6 +23,7 @@ googleauthentication==0.0.18
 grpc-google-iam-v1==0.12.7
 grpcio==1.68.0
 grpcio-status==1.62.3
+gunicorn==23.0.0
 httplib2==0.22.0
 idna==3.10
 libcst==1.5.1
